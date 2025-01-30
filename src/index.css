@@ -35,7 +35,8 @@
   transform: translateX(0%);
 }
 
-.hiddenPers {
+.hiddenCustom {
+  transition: all 0.5s linear;
   transform: translateX(102%);
 }
 

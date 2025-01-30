@@ -27,7 +27,8 @@ const CreateFilmForm = () => {
       {filmItem.map((_, index) => {
         return <FormFilmItem key={index} index={index}></FormFilmItem>;
       })}
-      ;<Button disabled={Object.keys(createdPost).length === 0}>Save</Button>
+
+      <Button disabled={Object.keys(createdPost).length === 0}>Save</Button>
     </form>
   );
 };

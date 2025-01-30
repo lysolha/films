@@ -3,12 +3,13 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
 import Footer from "./components/Footer.jsx";
 import movieAPILink from "./utilities/API.js";
 import authContext from "./context/authtorisation.jsx";
 import AlertItem from "./components/AlertItem.jsx";
+import CreateFilms from "./pages/CreateFilms.jsx";
+import ImportFilms from "./pages/ImportFilms.jsx";
 
 const Main = () => {
   async function fetchSession() {
@@ -39,9 +40,14 @@ const Main = () => {
   const [token, setToken] = useState(null);
   const [films, setFilms] = useState(null);
   const [file, setFile] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [trigger, setTrigger] = useState(false);
+  const [alertInfo, setAlert] = useState({
+    status: false,
+    title: "",
+    description: "",
+  });
 
   async function fetchFilms() {
     fetch(`${movieAPILink}/movies?limit=100`, {
@@ -68,15 +74,10 @@ const Main = () => {
   }
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    // if (file.type !== "text/plain") {
-    //   alert("Please upload a valid .txt file");
-    //   return;
-    // }
     setFile(event.target.files[0]);
   };
 
-  const handleUpload = (setOpen) => {
+  const handleUpload = () => {
     const formData = new FormData();
     formData.append("movies", file);
 
@@ -92,15 +93,24 @@ const Main = () => {
         return response.text();
       })
       .then((data) => {
-        setOpen(false);
-        setShowAlert(true);
-        console.log("File uploaded successfully", data);
+        setAlert({
+          ...alertInfo,
+          status: true,
+          title: "Success",
+          description: "Films were added.",
+        });
       })
       .catch((error) => {
+        setAlert({
+          ...alertInfo,
+          status: true,
+          title: "Fail!",
+          description: "Films were NOT added.",
+        });
         console.error("Error uploading file", error);
       });
 
-    fetchFilms();
+    setTrigger(!trigger);
   };
 
   async function deleteFilm(filmId) {
@@ -121,7 +131,7 @@ const Main = () => {
       deleteFilm(film.id);
     });
 
-    fetchFilms();
+    setTrigger(!trigger);
   };
 
   useEffect(() => {
@@ -130,7 +140,9 @@ const Main = () => {
 
   useEffect(() => {
     fetchFilms();
-  }, [token]);
+  }, [token, trigger]);
+
+  console.log(films);
 
   return (
     <div className="flex flex-col justify-between min-h-screen">
@@ -139,7 +151,7 @@ const Main = () => {
           <div className="m-5">
             <Routes>
               <Route
-                path="app"
+                index
                 element={
                   <App
                     handleFileChange={handleFileChange}
@@ -151,24 +163,43 @@ const Main = () => {
                   />
                 }
               ></Route>
-              <Route index element={<Home />} />
               <Route path="about" element={<About />} />
+              <Route
+                path="create-film"
+                element={
+                  <CreateFilms
+                    handleFileChange={handleFileChange}
+                    handleUpload={handleUpload}
+                  />
+                }
+              />
+              <Route
+                path="import-films"
+                element={
+                  <ImportFilms
+                    handleFileChange={handleFileChange}
+                    handleUpload={handleUpload}
+                  />
+                }
+              />
             </Routes>
           </div>
 
-          {showAlert ? <AlertItem additionalClass="open"></AlertItem> : <></>}
+          {alertInfo.status && (
+            <AlertItem
+              title={alertInfo.title}
+              description={alertInfo.description}
+            ></AlertItem>
+          )}
 
           <Footer>
             <nav className="p-5">
               <ul>
                 <li>
-                  <Link to="/">Home</Link>
-                </li>
-                <li>
                   <Link to="/about">About</Link>
                 </li>
                 <li>
-                  <Link to="/app">App</Link>
+                  <Link to="/">App</Link>
                 </li>
               </ul>
             </nav>

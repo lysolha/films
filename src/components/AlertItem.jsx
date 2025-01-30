@@ -1,26 +1,28 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Terminal } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const AlertItem = ({ additionalClass }) => {
-  const [stateClass, setStateClass] = useState(additionalClass);
+const AlertItem = ({ title, description }) => {
+  const [stateClass, setStateClass] = useState("hiddenCustom");
 
-  setInterval(() => {
-    setStateClass("hiddenPers");
-  }, 3000);
+  useEffect(() => {
+    const interval1 = setTimeout(() => {
+      setStateClass("open");
+    }, 100);
+    const interval = setTimeout(() => {
+      setStateClass("hiddenCustom");
+    }, 4000);
+    return () => {
+      clearTimeout(interval);
+      clearTimeout(interval1);
+    };
+  }, []);
 
   return (
-    <Alert
-      className={
-        "fixed top-1 right-1 max-w-md transition-transform duration-1000 ease-in-out " +
-        stateClass
-      }
-    >
+    <Alert className={`fixed top-1 right-1 max-w-md ${stateClass}`}>
       <Terminal className="h-4 w-4" />
-      <AlertTitle>Heads up!</AlertTitle>
-      <AlertDescription>
-        You can add components and dependencies to your app using the cli.
-      </AlertDescription>
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>{description}</AlertDescription>
     </Alert>
   );
 };
