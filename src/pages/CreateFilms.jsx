@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-const CreateFilms = ({ handleCreateFilm, handleFileChange, handleImport }) => {
+const CreateFilms = ({ handleCreateFilm }) => {
   const navigator = useNavigate();
   const goToImport = () => {
     navigator("/import-films");

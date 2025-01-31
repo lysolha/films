@@ -1,19 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 
-const ImportFilms = ({ handleFileChange, handleImport }) => {
+const ImportFilms = ({ handleImport }) => {
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
   const navigator = useNavigate();
   const upload = () => {
-    handleImport();
+    handleImport(file);
     navigator("/");
   };
 
   return (
     <div>
       <Input onChange={handleFileChange} type="file" id="bulkImport" multiple />
-      <Button onClick={upload}> Import </Button>
+      <Button disabled={!file} onClick={upload}>
+        Import
+      </Button>
     </div>
   );
 };

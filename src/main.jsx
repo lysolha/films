@@ -13,7 +13,7 @@ import ImportFilms from "./pages/ImportFilms.jsx";
 
 const Main = () => {
   async function fetchSession() {
-    fetch(`${movieAPILink}/sessions`, {
+    await fetch(`${movieAPILink}/sessions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +39,6 @@ const Main = () => {
 
   const [token, setToken] = useState(null);
   const [films, setFilms] = useState(null);
-  const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [trigger, setTrigger] = useState(false);
@@ -51,7 +50,7 @@ const Main = () => {
   });
 
   async function fetchFilms() {
-    fetch(`${movieAPILink}/movies?limit=100`, {
+    await fetch(`${movieAPILink}/movies?limit=100`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -62,6 +61,7 @@ const Main = () => {
         return response.json();
       })
       .then((data) => {
+        console.log("fetchFilms", data);
         setFilms(data.data);
       })
       .catch((err) => {
@@ -72,12 +72,8 @@ const Main = () => {
       });
   }
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
-
   async function handleCreateFilm(film) {
-    fetch(`${movieAPILink}/movies`, {
+    await fetch(`${movieAPILink}/movies`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -110,11 +106,11 @@ const Main = () => {
       });
   }
 
-  async function handleImport() {
+  async function handleImport(file) {
     const formData = new FormData();
     formData.append("movies", file);
 
-    fetch(`${movieAPILink}/movies/import`, {
+    await fetch(`${movieAPILink}/movies/import`, {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -152,11 +148,7 @@ const Main = () => {
       headers: {
         Authorization: token,
       },
-    })
-      .then((response) => response.json)
-      .catch((err) => {
-        throw new Error(`Film not deleted. Error: ${err}`);
-      });
+    });
   }
 
   const handleDeleteAll = () => {
@@ -185,8 +177,6 @@ const Main = () => {
                 index
                 element={
                   <App
-                    handleFileChange={handleFileChange}
-                    handleImport={handleImport}
                     fetchFilms={fetchFilms}
                     films={films}
                     handleDeleteAll={handleDeleteAll}
@@ -197,22 +187,11 @@ const Main = () => {
               <Route path="about" element={<About />} />
               <Route
                 path="create-film"
-                element={
-                  <CreateFilms
-                    handleCreateFilm={handleCreateFilm}
-                    handleFileChange={handleFileChange}
-                    handleImport={handleImport}
-                  />
-                }
+                element={<CreateFilms handleCreateFilm={handleCreateFilm} />}
               />
               <Route
                 path="import-films"
-                element={
-                  <ImportFilms
-                    handleFileChange={handleFileChange}
-                    handleImport={handleImport}
-                  />
-                }
+                element={<ImportFilms handleImport={handleImport} />}
               />
             </Routes>
           </div>
