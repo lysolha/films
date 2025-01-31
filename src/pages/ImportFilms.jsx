@@ -3,10 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 
-const ImportFilms = ({ handleFileChange, handleUpload }) => {
+const ImportFilms = ({ handleFileChange, handleImport }) => {
   const navigator = useNavigate();
   const upload = () => {
-    handleUpload();
+    handleImport();
     navigator("/");
   };
 

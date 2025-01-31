@@ -4,16 +4,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-const CreateFilms = ({ handleFileChange, handleUpload }) => {
+const CreateFilms = ({ handleCreateFilm, handleFileChange, handleImport }) => {
   const navigator = useNavigate();
   const goToImport = () => {
     navigator("/import-films");
   };
 
+  const goHome = () => {
+    navigator("/");
+  };
+
   return (
     <div>
-      <CreateFilmForm></CreateFilmForm>
-      <Button onClick={goToImport}>Import file</Button>
+      <div className="w-full flex justify-end">
+        <Button onClick={goToImport}>Import file</Button>
+      </div>
+      <CreateFilmForm
+        goHome={goHome}
+        handleCreateFilm={handleCreateFilm}
+      ></CreateFilmForm>
     </div>
   );
 };

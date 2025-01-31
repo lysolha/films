@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Terminal } from "lucide-react";
+import { Terminal, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const AlertItem = ({ title, description }) => {
+const AlertItem = ({ variant, title, description }) => {
   const [stateClass, setStateClass] = useState("hiddenCustom");
 
   useEffect(() => {
@@ -19,8 +19,16 @@ const AlertItem = ({ title, description }) => {
   }, []);
 
   return (
-    <Alert className={`fixed top-1 right-1 max-w-md ${stateClass}`}>
-      <Terminal className="h-4 w-4" />
+    <Alert
+      variant={variant}
+      className={`fixed top-1 right-1 max-w-md ${stateClass}`}
+    >
+      {variant === "default" ? (
+        <Terminal className="h-4 w-4" />
+      ) : (
+        <AlertCircle className="h-4 w-4" />
+      )}
+
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{description}</AlertDescription>
     </Alert>

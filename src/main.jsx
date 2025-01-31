@@ -45,6 +45,7 @@ const Main = () => {
   const [trigger, setTrigger] = useState(false);
   const [alertInfo, setAlert] = useState({
     status: false,
+    variant: "default",
     title: "",
     description: "",
   });
@@ -69,15 +70,47 @@ const Main = () => {
       .finally(() => {
         setLoading(false);
       });
-
-    console.log;
   }
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
 
-  const handleUpload = () => {
+  async function handleCreateFilm(film) {
+    fetch(`${movieAPILink}/movies`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify(film),
+    })
+      .then((response) => {
+        setAlert({
+          ...alertInfo,
+          variant: "default",
+          status: true,
+          title: "Success",
+          description: "Films were added.",
+        });
+        return response.text();
+      })
+      .catch((err) => {
+        setAlert({
+          ...alertInfo,
+          status: true,
+          variant: "destructive",
+          title: "Fail!",
+          description: "Films were NOT added.",
+        });
+        throw new Error(`Error: ${err}`);
+      })
+      .finally(() => {
+        setTrigger(!trigger);
+      });
+  }
+
+  async function handleImport() {
     const formData = new FormData();
     formData.append("movies", file);
 
@@ -90,28 +123,28 @@ const Main = () => {
       body: formData,
     })
       .then((response) => {
-        return response.text();
-      })
-      .then((data) => {
         setAlert({
           ...alertInfo,
+          variant: "default",
           status: true,
           title: "Success",
           description: "Films were added.",
         });
+        return response.text();
       })
       .catch((error) => {
         setAlert({
           ...alertInfo,
           status: true,
+          variant: "destructive",
           title: "Fail!",
           description: "Films were NOT added.",
         });
-        console.error("Error uploading file", error);
+        throw new Error(`Error: ${error}`);
       });
 
     setTrigger(!trigger);
-  };
+  }
 
   async function deleteFilm(filmId) {
     fetch(`${movieAPILink}/movies/${filmId}`, {
@@ -142,8 +175,6 @@ const Main = () => {
     fetchFilms();
   }, [token, trigger]);
 
-  console.log(films);
-
   return (
     <div className="flex flex-col justify-between min-h-screen">
       <authContext.Provider value={token}>
@@ -155,7 +186,7 @@ const Main = () => {
                 element={
                   <App
                     handleFileChange={handleFileChange}
-                    handleUpload={handleUpload}
+                    handleImport={handleImport}
                     fetchFilms={fetchFilms}
                     films={films}
                     handleDeleteAll={handleDeleteAll}
@@ -168,8 +199,9 @@ const Main = () => {
                 path="create-film"
                 element={
                   <CreateFilms
+                    handleCreateFilm={handleCreateFilm}
                     handleFileChange={handleFileChange}
-                    handleUpload={handleUpload}
+                    handleImport={handleImport}
                   />
                 }
               />
@@ -178,7 +210,7 @@ const Main = () => {
                 element={
                   <ImportFilms
                     handleFileChange={handleFileChange}
-                    handleUpload={handleUpload}
+                    handleImport={handleImport}
                   />
                 }
               />
@@ -187,6 +219,7 @@ const Main = () => {
 
           {alertInfo.status && (
             <AlertItem
+              variant={alertInfo.variant}
               title={alertInfo.title}
               description={alertInfo.description}
             ></AlertItem>
