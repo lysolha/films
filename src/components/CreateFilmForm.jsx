@@ -3,13 +3,28 @@ import { Input } from "./ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "./ui/label";
 import FormFilmItem from "./FormFilmItem";
+import { v4 as uuidv4 } from "uuid";
 
 const CreateFilmForm = ({ goHome, handleCreateFilm }) => {
-  let [filmItem, setFilmItem] = useState([{ valid: false, item: [] }]);
+  let [filmItem, setFilmItem] = useState([
+    { id: crypto.randomUUID(), valid: false, item: [] },
+  ]);
   let [isValid, setIsValid] = useState(false);
+  let showDelete = false;
 
   const addForm = () => {
-    setFilmItem([...filmItem, ""]);
+    setFilmItem([
+      ...filmItem,
+      { id: crypto.randomUUID(), valid: false, item: [] },
+    ]);
+  };
+
+  const deleteForm = (id) => {
+    const updatedList = filmItem.filter((film) => {
+      return film.id !== id;
+    });
+
+    setFilmItem(updatedList);
   };
 
   const handleSubmit = (e) => {
@@ -22,27 +37,29 @@ const CreateFilmForm = ({ goHome, handleCreateFilm }) => {
   };
 
   useEffect(() => {
+    console.log(filmItem);
     setIsValid(filmItem.every((film) => film.valid));
   }, [filmItem]);
 
-  console.log(filmItem);
-
   return (
-    <form className="flex flex-col space-y-3.5 my-4" onSubmit={handleSubmit}>
-      {filmItem.map((item, index) => {
+    <form className="my-4 flex flex-col space-y-3.5" onSubmit={handleSubmit}>
+      {filmItem.map((film) => {
+        filmItem.length > 1 ? (showDelete = true) : (showDelete = false);
         return (
           <FormFilmItem
             filmItem={filmItem}
             setFilmItem={setFilmItem}
-            key={index}
-            index={index}
+            key={film.id}
+            index={film.id}
+            showDelete={showDelete}
+            deleteForm={deleteForm}
           ></FormFilmItem>
         );
       })}
 
       <a
         onClick={addForm}
-        className="block w-full text-center hover:underline hover:text-gray-950 cursor-pointer transition duration-500"
+        className="block w-full cursor-pointer text-center transition duration-500 hover:text-gray-950 hover:underline"
       >
         Add film
       </a>

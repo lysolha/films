@@ -12,13 +12,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
+const FormFilmItem = ({
+  index,
+  setFilmItem,
+  filmItem,
+  deleteForm,
+  showDelete,
+}) => {
   let [film, setFilm] = useState({
+    id: index,
     title: "",
     year: "",
-    format: "",
+    format: "DVD",
     actors: [""],
   });
+
   const [isValid, setIsValid] = useState(false);
   const [select, setSelect] = useState("DVD");
 
@@ -59,10 +67,11 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
     const valid = validateForm(newFilm);
     setIsValid(valid);
 
+    console.log("check");
     setFilmItem(
-      filmItem.map((item, id) =>
-        id === index ? { ...item, valid: valid, item: newFilm } : item
-      )
+      filmItem.map((item) =>
+        item.id === index ? { ...item, valid: valid, item: newFilm } : item,
+      ),
     );
   };
 
@@ -70,7 +79,7 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
     const newFilmFunction = (prevFilm) => ({
       ...prevFilm,
       actors: prevFilm.actors.map((actor, index) =>
-        index === id ? e.target.value : actor
+        index === id ? e.target.value : actor,
       ),
     });
     const newFilm = newFilmFunction(film);
@@ -84,9 +93,9 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
     }
 
     setFilmItem(
-      filmItem.map((item, id) =>
-        id === index ? { ...item, valid: valid, item: newFilm } : item
-      )
+      filmItem.map((item) =>
+        item.id === index ? { ...item, valid: valid, item: newFilm } : item,
+      ),
     );
   };
 
@@ -103,8 +112,8 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
 
     setFilmItem(
       filmItem.map((item, id) =>
-        id === index ? { ...item, valid: valid, item: updatedFilm } : item
-      )
+        item.id === index ? { ...item, valid: valid, item: updatedFilm } : item,
+      ),
     );
   };
 
@@ -118,13 +127,21 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
 
     setFilmItem(
       filmItem.map((item, id) =>
-        id === index ? { ...item, valid: valid, item: newFilm } : item
-      )
+        item.id === index ? { ...item, valid: valid, item: newFilm } : item,
+      ),
     );
   };
 
   return (
-    <div className="p-4 rounded-xl border-2 border-gray-400">
+    <div className="rounded-xl border-2 border-gray-400 p-4 pt-2">
+      {showDelete && (
+        <div className="flex justify-end">
+          <Button type="button" onClick={() => deleteForm(index)}>
+            Delete
+          </Button>
+        </div>
+      )}
+
       <div className="mb-4">
         <Label htmlFor={`title-${index}`} className="mb-2 font-bold">
           Title
@@ -184,7 +201,9 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
                 placeholder="star name"
               ></Input>
               {index !== 0 && (
-                <Button onClick={() => deleteInput(index)}>X</Button>
+                <Button type="button" onClick={() => deleteInput(index)}>
+                  X
+                </Button>
               )}
             </li>
           );
@@ -193,7 +212,7 @@ const FormFilmItem = ({ index, setFilmItem, filmItem }) => {
 
       <a
         onClick={addInputs}
-        className="block w-full text-center hover:underline hover:text-gray-950 cursor-pointer transition duration-500"
+        className="block w-full cursor-pointer text-center transition duration-500 hover:text-gray-950 hover:underline"
       >
         + add star
       </a>

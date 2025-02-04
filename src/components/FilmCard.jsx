@@ -1,10 +1,10 @@
-import React from "react";
 import { CassetteTape } from "lucide-react";
+import React from "react";
 
 const FilmCard = ({ film }) => {
   return (
-    <div className="flex flex-col card__small text-center">
-      <div className="card__film-image h-1/2 flex justify-center items-center">
+    <div className="card__small flex flex-col text-center">
+      <div className="card__film-image flex h-1/2 items-center justify-center pt-3">
         <CassetteTape />
       </div>
       <div className="mt-auto p-5">

@@ -20,13 +20,13 @@ export default function App({ films, handleDeleteAll, loading }) {
       <DeleteAllButton handleDeleteAll={handleDeleteAll}></DeleteAllButton>
       {loading && (
         <div className="w-full text-center">
-          <span className="font-bold size-80">Loading</span>
+          <span className="size-80 font-bold">Loading</span>
         </div>
       )}
 
       {!loading &&
         (films && films.length ? (
-          <ul className="flex row gap-6 flex-wrap mt-5 justify-between">
+          <ul className="row mt-5 flex flex-wrap gap-6">
             {films.map((film) => (
               <li key={film.id}>
                 <FilmCard film={film} />
@@ -35,7 +35,7 @@ export default function App({ films, handleDeleteAll, loading }) {
           </ul>
         ) : (
           <div className="w-full text-center">
-            <span className="font-bold size-80">No films</span>
+            <span className="size-80 font-bold">No films</span>
           </div>
         ))}
     </div>

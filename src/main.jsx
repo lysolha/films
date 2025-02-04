@@ -49,6 +49,10 @@ const Main = () => {
     description: "",
   });
 
+  const resetAlert = () => {
+    setAlert({ ...alertInfo, status: false });
+  };
+
   async function fetchFilms() {
     await fetch(`${movieAPILink}/movies?limit=100`, {
       method: "GET",
@@ -142,21 +146,36 @@ const Main = () => {
     setTrigger(!trigger);
   }
 
-  async function deleteFilm(filmId) {
-    fetch(`${movieAPILink}/movies/${filmId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-      },
-    });
-  }
+  const deleteFilm = async (filmId) => {
+    try {
+      const response = await fetch(`${movieAPILink}/movies/${filmId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to delete film with ID: ${filmId}`);
+      }
+    } catch (err) {
+      throw new Error(`Film not deleted. Error: ${err}`);
+    }
+  };
 
-  const handleDeleteAll = () => {
-    films.forEach((film) => {
-      deleteFilm(film.id);
-    });
-
-    setTrigger(!trigger);
+  const handleDeleteAll = async () => {
+    try {
+      await Promise.all(films.map((film) => deleteFilm(film.id)));
+      setTrigger((prev) => !prev);
+      setAlert({
+        ...alertInfo,
+        variant: "default",
+        status: true,
+        title: "Deleted",
+        description: "All films were deleted.",
+      });
+    } catch (err) {
+      console.error("Error deleting films: ", err);
+    }
   };
 
   useEffect(() => {
@@ -168,7 +187,7 @@ const Main = () => {
   }, [token, trigger]);
 
   return (
-    <div className="flex flex-col justify-between min-h-screen">
+    <div className="flex min-h-screen flex-col justify-between">
       <authContext.Provider value={token}>
         <Router>
           <div className="m-5">
@@ -201,6 +220,7 @@ const Main = () => {
               variant={alertInfo.variant}
               title={alertInfo.title}
               description={alertInfo.description}
+              resetAlert={resetAlert}
             ></AlertItem>
           )}
 

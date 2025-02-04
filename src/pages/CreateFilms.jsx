@@ -16,7 +16,7 @@ const CreateFilms = ({ handleCreateFilm }) => {
 
   return (
     <div>
-      <div className="w-full flex justify-end">
+      <div className="flex w-full justify-end">
         <Button onClick={goToImport}>Import file</Button>
       </div>
       <CreateFilmForm
