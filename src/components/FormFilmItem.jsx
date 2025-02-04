@@ -1,16 +1,15 @@
-import { React, useState, useEffect } from "react";
-import { Input } from "./ui/input";
-import { Button } from "../components/ui/button";
-import { Label } from "./ui/label";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { React, useEffect, useState } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 const FormFilmItem = ({
   index,
@@ -27,17 +26,7 @@ const FormFilmItem = ({
     actors: [""],
   });
 
-  const [isValid, setIsValid] = useState(false);
   const [select, setSelect] = useState("DVD");
-
-  const addInputs = () => {
-    setFilm((prevFilm) => ({
-      ...prevFilm,
-      actors: [...prevFilm.actors, ""],
-    }));
-
-    setIsValid(false);
-  };
 
   const validateForm = (obj) => {
     const valid = Object.values(obj).every((value) => {
@@ -55,6 +44,16 @@ const FormFilmItem = ({
     return valid;
   };
 
+  useEffect(() => {
+    const valid = validateForm(film);
+
+    setFilmItem(
+      filmItem.map((item) =>
+        item.id === index ? { ...item, valid: valid, item: film } : item,
+      ),
+    );
+  }, [film]);
+
   const setInput = (e) => {
     let value = e.target.value;
     if (e.target.name == "year") {
@@ -63,16 +62,19 @@ const FormFilmItem = ({
 
     const newFilm = { ...film, [e.target.name]: value };
     setFilm(newFilm);
+  };
 
-    const valid = validateForm(newFilm);
-    setIsValid(valid);
+  const updateSelect = (value) => {
+    setSelect(value);
+    const newFilm = { ...film, format: value };
+    setFilm(newFilm);
+  };
 
-    console.log("check");
-    setFilmItem(
-      filmItem.map((item) =>
-        item.id === index ? { ...item, valid: valid, item: newFilm } : item,
-      ),
-    );
+  const addStarInputs = () => {
+    setFilm((prevFilm) => ({
+      ...prevFilm,
+      actors: [...prevFilm.actors, ""],
+    }));
   };
 
   const handleActors = (e, id) => {
@@ -82,54 +84,13 @@ const FormFilmItem = ({
         index === id ? e.target.value : actor,
       ),
     });
-    const newFilm = newFilmFunction(film);
 
-    setFilm(newFilm);
-    let valid = isValid;
-
-    if (!isValid) {
-      valid = validateForm(newFilm);
-      setIsValid(valid);
-    }
-
-    setFilmItem(
-      filmItem.map((item) =>
-        item.id === index ? { ...item, valid: valid, item: newFilm } : item,
-      ),
-    );
+    setFilm(newFilmFunction(film));
   };
 
   const deleteInput = (id) => {
     const updatedActors = film.actors.filter((actor, index) => index !== id);
-    const updatedFilm = { ...film, actors: updatedActors };
-    setFilm(updatedFilm);
-
-    let valid = isValid;
-    if (!isValid) {
-      valid = validateForm(updatedFilm);
-      setIsValid(valid);
-    }
-
-    setFilmItem(
-      filmItem.map((item, id) =>
-        item.id === index ? { ...item, valid: valid, item: updatedFilm } : item,
-      ),
-    );
-  };
-
-  const updateSelect = (value) => {
-    setSelect(value);
-    const newFilm = { ...film, format: value };
-    setFilm(newFilm);
-
-    const valid = validateForm(newFilm);
-    setIsValid(valid);
-
-    setFilmItem(
-      filmItem.map((item, id) =>
-        item.id === index ? { ...item, valid: valid, item: newFilm } : item,
-      ),
-    );
+    setFilm({ ...film, actors: updatedActors });
   };
 
   return (
@@ -191,7 +152,7 @@ const FormFilmItem = ({
       <ul className="mb-4">
         {film.actors.map((actor, index) => {
           return (
-            <li key={index}>
+            <li key={index} className="flex gap-2">
               <Input
                 name={`star-${index}`}
                 value={actor}
@@ -211,7 +172,7 @@ const FormFilmItem = ({
       </ul>
 
       <a
-        onClick={addInputs}
+        onClick={addStarInputs}
         className="block w-full cursor-pointer text-center transition duration-500 hover:text-gray-950 hover:underline"
       >
         + add star

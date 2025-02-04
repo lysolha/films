@@ -1,16 +1,14 @@
-import { React, useState, useEffect } from "react";
-import { Input } from "./ui/input";
+import { React, useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
-import { Label } from "./ui/label";
 import FormFilmItem from "./FormFilmItem";
-import { v4 as uuidv4 } from "uuid";
 
 const CreateFilmForm = ({ goHome, handleCreateFilm }) => {
   let [filmItem, setFilmItem] = useState([
     { id: crypto.randomUUID(), valid: false, item: [] },
   ]);
+
   let [isValid, setIsValid] = useState(false);
-  let showDelete = false;
+  let showFormDelete = false;
 
   const addForm = () => {
     setFilmItem([
@@ -44,14 +42,14 @@ const CreateFilmForm = ({ goHome, handleCreateFilm }) => {
   return (
     <form className="my-4 flex flex-col space-y-3.5" onSubmit={handleSubmit}>
       {filmItem.map((film) => {
-        filmItem.length > 1 ? (showDelete = true) : (showDelete = false);
+        showFormDelete = filmItem.length > 1;
         return (
           <FormFilmItem
             filmItem={filmItem}
             setFilmItem={setFilmItem}
             key={film.id}
             index={film.id}
-            showDelete={showDelete}
+            showDelete={showFormDelete}
             deleteForm={deleteForm}
           ></FormFilmItem>
         );
