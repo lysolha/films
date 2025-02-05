@@ -1,43 +1,25 @@
-import { useState, useLayoutEffect, useEffect } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
+import { useContext, useEffect, useState } from "react";
+import {
+  Link,
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import App from "./App.jsx";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import About from "./pages/About.jsx";
-import Footer from "./components/Footer.jsx";
-import movieAPILink from "./utilities/API.js";
-import authContext from "./context/authtorisation.jsx";
 import AlertItem from "./components/AlertItem.jsx";
+import Footer from "./components/Footer.jsx";
+import { AuthContext } from "./context/authtorisation.jsx";
+import "./index.css";
+import About from "./pages/About.jsx";
 import CreateFilms from "./pages/CreateFilms.jsx";
+import FilmInfo from "./pages/FilmInfo.jsx";
 import ImportFilms from "./pages/ImportFilms.jsx";
+import movieAPILink from "./utilities/API.js";
 
 const Main = () => {
-  async function fetchSession() {
-    await fetch(`${movieAPILink}/sessions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: "petro@gmail.com",
-        password: "super-password",
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((result) => {
-        setToken(result.token);
-      })
-      .catch((err) => {
-        setError(err.message);
-      });
-  }
+  const { token } = useContext(AuthContext);
 
-  const [token, setToken] = useState(null);
   const [films, setFilms] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +47,6 @@ const Main = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("fetchFilms", data);
         setFilms(data.data);
       })
       .catch((err) => {
@@ -179,67 +160,66 @@ const Main = () => {
   };
 
   useEffect(() => {
-    fetchSession();
-  }, []);
-
-  useEffect(() => {
     fetchFilms();
   }, [token, trigger]);
 
   return (
     <div className="flex min-h-screen flex-col justify-between">
-      <authContext.Provider value={token}>
-        <Router>
-          <div className="m-5">
-            <Routes>
-              <Route
-                index
-                element={
-                  <App
-                    fetchFilms={fetchFilms}
-                    films={films}
-                    handleDeleteAll={handleDeleteAll}
-                    loading={loading}
-                  />
-                }
-              ></Route>
-              <Route path="about" element={<About />} />
-              <Route
-                path="create-film"
-                element={<CreateFilms handleCreateFilm={handleCreateFilm} />}
-              />
-              <Route
-                path="import-films"
-                element={<ImportFilms handleImport={handleImport} />}
-              />
-            </Routes>
-          </div>
+      <Router>
+        <div className="m-5">
+          <Routes>
+            <Route
+              index
+              element={
+                <App
+                  token={token}
+                  fetchFilms={fetchFilms}
+                  films={films}
+                  handleDeleteAll={handleDeleteAll}
+                  loading={loading}
+                />
+              }
+            ></Route>
+            <Route path="about" element={<About />} />
+            <Route
+              path="create-film"
+              element={<CreateFilms handleCreateFilm={handleCreateFilm} />}
+            />
+            <Route
+              path="import-films"
+              element={<ImportFilms handleImport={handleImport} />}
+            />
+            <Route path="film/:filmId" element={<FilmInfo token={token} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
 
-          {alertInfo.status && (
-            <AlertItem
-              variant={alertInfo.variant}
-              title={alertInfo.title}
-              description={alertInfo.description}
-              resetAlert={resetAlert}
-            ></AlertItem>
-          )}
+        {alertInfo.status && (
+          <AlertItem
+            variant={alertInfo.variant}
+            title={alertInfo.title}
+            description={alertInfo.description}
+            resetAlert={resetAlert}
+          ></AlertItem>
+        )}
 
-          <Footer>
-            <nav className="p-5">
-              <ul>
-                <li>
-                  <Link to="/about">About</Link>
-                </li>
-                <li>
-                  <Link to="/">App</Link>
-                </li>
-              </ul>
-            </nav>
-          </Footer>
-        </Router>
-      </authContext.Provider>
+        <Footer>
+          <nav className="p-5">
+            <ul>
+              <li>
+                <Link to="/about">About</Link>
+              </li>
+              <li>
+                <Link to="/">App</Link>
+              </li>
+            </ul>
+          </nav>
+        </Footer>
+      </Router>
     </div>
   );
 };
 
-createRoot(document.getElementById("root")).render(<Main />);
+export default Main;
+
+// createRoot(document.getElementById("root")).render(<Main />);
