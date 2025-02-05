@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Link,
   Navigate,
@@ -10,6 +10,7 @@ import App from "./App.jsx";
 import AlertItem from "./components/AlertItem.jsx";
 import Footer from "./components/Footer.jsx";
 import { AuthContext } from "./context/authtorisation.jsx";
+import useFetchFilms from "./hooks/useFetchFilms.jsx";
 import "./index.css";
 import About from "./pages/About.jsx";
 import CreateFilms from "./pages/CreateFilms.jsx";
@@ -20,7 +21,9 @@ import movieAPILink from "./utilities/API.js";
 const Main = () => {
   const { token } = useContext(AuthContext);
 
-  const [films, setFilms] = useState(null);
+  // console.log("token", token);
+
+  // const [films, setFilms] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [trigger, setTrigger] = useState(false);
@@ -35,60 +38,66 @@ const Main = () => {
     setAlert({ ...alertInfo, status: false });
   };
 
-  async function fetchFilms() {
-    await fetch(`${movieAPILink}/movies?limit=100`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setFilms(data.data);
-      })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }
+  const { films, saveToken, removeToken } = useFetchFilms(
+    token,
+    setLoading,
+    trigger,
+  );
 
   async function handleCreateFilm(film) {
-    await fetch(`${movieAPILink}/movies`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-      body: JSON.stringify(film),
-    })
-      .then((response) => {
-        setAlert({
-          ...alertInfo,
-          variant: "default",
-          status: true,
-          title: "Success",
-          description: "Films were added.",
-        });
-        return response.text();
-      })
-      .catch((err) => {
-        setAlert({
-          ...alertInfo,
-          status: true,
-          variant: "destructive",
-          title: "Fail!",
-          description: "Films were NOT added.",
-        });
-        throw new Error(`Error: ${err}`);
-      })
-      .finally(() => {
-        setTrigger(!trigger);
+    try {
+      const response = await fetch(`${movieAPILink}/movies`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(film),
       });
+      console.log("status", response.status);
+
+      if (!response.ok) {
+        throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("result", result);
+    } catch (err) {
+      console.log("err", err);
+    }
+
+    // await fetch(`${movieAPILink}/movies`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: token,
+    //   },
+    //   body: JSON.stringify(film),
+    // })
+    //   .then((response) => {
+    //     setAlert({
+    //       ...alertInfo,
+    //       variant: "default",
+    //       status: true,
+    //       title: "Success",
+    //       description: "Films were added.",
+    //     });
+    //     return response.status;
+    //   })
+    //   .catch((err) => {
+    //     setAlert({
+    //       ...alertInfo,
+    //       status: true,
+    //       variant: "destructive",
+    //       title: "Fail!",
+    //       description: "Films were NOT added.",
+    //     });
+    //     // throw new Error(`Error: ${err}`);
+    //     return err;
+    //   })
+    //   .finally(() => {
+    //     setTrigger(!trigger);
+    //   });
   }
 
   async function handleImport(file) {
@@ -143,6 +152,29 @@ const Main = () => {
     }
   };
 
+  const deleteOneFilm = async (filmId) => {
+    try {
+      await deleteFilm(filmId);
+      setTrigger((prev) => !prev);
+      setAlert({
+        ...alertInfo,
+        variant: "default",
+        status: true,
+        title: "Deleted",
+        description: "Film was deleted.",
+      });
+    } catch (err) {
+      console.error("Error deleting films: ", err);
+      setAlert({
+        ...alertInfo,
+        status: true,
+        variant: "destructive",
+        title: "Fail!",
+        description: "Films were NOT added.",
+      });
+    }
+  };
+
   const handleDeleteAll = async () => {
     try {
       await Promise.all(films.map((film) => deleteFilm(film.id)));
@@ -159,9 +191,9 @@ const Main = () => {
     }
   };
 
-  useEffect(() => {
-    fetchFilms();
-  }, [token, trigger]);
+  // useEffect(() => {
+  //   fetchFilms();
+  // }, [token, trigger]);
 
   return (
     <div className="flex min-h-screen flex-col justify-between">
@@ -173,7 +205,7 @@ const Main = () => {
               element={
                 <App
                   token={token}
-                  fetchFilms={fetchFilms}
+                  // fetchFilms={fetchFilms}
                   films={films}
                   handleDeleteAll={handleDeleteAll}
                   loading={loading}
@@ -189,7 +221,10 @@ const Main = () => {
               path="import-films"
               element={<ImportFilms handleImport={handleImport} />}
             />
-            <Route path="film/:filmId" element={<FilmInfo token={token} />} />
+            <Route
+              path="film/:filmId"
+              element={<FilmInfo deleteFilm={deleteOneFilm} token={token} />}
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
@@ -221,5 +256,3 @@ const Main = () => {
 };
 
 export default Main;
-
-// createRoot(document.getElementById("root")).render(<Main />);

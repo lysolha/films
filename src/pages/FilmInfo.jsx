@@ -1,14 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { CassetteTape } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import UpdateFilm from "../components/UpdateFilm";
 import movieAPILink from "../utilities/API";
 
-const FilmInfo = ({ token }) => {
+const FilmInfo = ({ token, deleteFilm }) => {
   const { filmId } = useParams();
   const [film, setFilm] = useState({ title: "", id: 0, year: 0, actors: [] });
   const [isEdit, setIsEdit] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleDelete = () => {
+    deleteFilm(filmId);
+    navigate(`/`);
+  };
 
   async function fetchFilm(filmId) {
     return await fetch(`${movieAPILink}/movies/${filmId}`, {
@@ -81,6 +88,9 @@ const FilmInfo = ({ token }) => {
             </ul>
             <Button onClick={setIsEdit} type="button">
               Update
+            </Button>
+            <Button onClick={handleDelete} type="button">
+              Delete
             </Button>
           </div>
         )}

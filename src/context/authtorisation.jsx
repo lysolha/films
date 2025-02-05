@@ -4,7 +4,9 @@ import movieAPILink from "../utilities/API";
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(
+    () => localStorage.getItem("token") || null,
+  );
 
   async function fetchSession() {
     await fetch(`${movieAPILink}/sessions`, {
@@ -24,7 +26,7 @@ const AuthProvider = ({ children }) => {
         return response.json();
       })
       .then((result) => {
-        setToken(result.token);
+        saveToken(result.token);
         return result.token;
       });
   }
@@ -33,8 +35,20 @@ const AuthProvider = ({ children }) => {
     fetchSession();
   }, []);
 
+  const saveToken = (newToken) => {
+    setToken(newToken);
+    localStorage.setItem("token", newToken);
+  };
+
+  const removeToken = () => {
+    setToken(null);
+    localStorage.removeItem("token");
+  };
+
   return (
-    <AuthContext.Provider value={{ token }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ token, saveToken, removeToken }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
