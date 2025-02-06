@@ -10,20 +10,17 @@ import App from "./App.jsx";
 import AlertItem from "./components/AlertItem.jsx";
 import Footer from "./components/Footer.jsx";
 import { AuthContext } from "./context/authtorisation.jsx";
-import useFetchFilms from "./hooks/useFetchFilms.jsx";
 import "./index.css";
 import About from "./pages/About.jsx";
 import CreateFilms from "./pages/CreateFilms.jsx";
 import FilmInfo from "./pages/FilmInfo.jsx";
 import ImportFilms from "./pages/ImportFilms.jsx";
 import movieAPILink from "./utilities/API.js";
+import useFetchFilms from "./utilities/filmAPI.js";
 
 const Main = () => {
   const { token } = useContext(AuthContext);
 
-  // console.log("token", token);
-
-  // const [films, setFilms] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [trigger, setTrigger] = useState(false);
@@ -38,67 +35,7 @@ const Main = () => {
     setAlert({ ...alertInfo, status: false });
   };
 
-  const { films, saveToken, removeToken } = useFetchFilms(
-    token,
-    setLoading,
-    trigger,
-  );
-
-  async function handleCreateFilm(film) {
-    try {
-      const response = await fetch(`${movieAPILink}/movies`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify(film),
-      });
-      console.log("status", response.status);
-
-      if (!response.ok) {
-        throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log("result", result);
-    } catch (err) {
-      console.log("err", err);
-    }
-
-    // await fetch(`${movieAPILink}/movies`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: token,
-    //   },
-    //   body: JSON.stringify(film),
-    // })
-    //   .then((response) => {
-    //     setAlert({
-    //       ...alertInfo,
-    //       variant: "default",
-    //       status: true,
-    //       title: "Success",
-    //       description: "Films were added.",
-    //     });
-    //     return response.status;
-    //   })
-    //   .catch((err) => {
-    //     setAlert({
-    //       ...alertInfo,
-    //       status: true,
-    //       variant: "destructive",
-    //       title: "Fail!",
-    //       description: "Films were NOT added.",
-    //     });
-    //     // throw new Error(`Error: ${err}`);
-    //     return err;
-    //   })
-    //   .finally(() => {
-    //     setTrigger(!trigger);
-    //   });
-  }
+  const { data, fetchFunction } = useFetchFilms(token, trigger, setLoading);
 
   async function handleImport(file) {
     const formData = new FormData();
@@ -177,7 +114,7 @@ const Main = () => {
 
   const handleDeleteAll = async () => {
     try {
-      await Promise.all(films.map((film) => deleteFilm(film.id)));
+      await Promise.all(data.map((film) => deleteFilm(film.id)));
       setTrigger((prev) => !prev);
       setAlert({
         ...alertInfo,
@@ -206,7 +143,7 @@ const Main = () => {
                 <App
                   token={token}
                   // fetchFilms={fetchFilms}
-                  films={films}
+                  films={data}
                   handleDeleteAll={handleDeleteAll}
                   loading={loading}
                 />
@@ -215,7 +152,14 @@ const Main = () => {
             <Route path="about" element={<About />} />
             <Route
               path="create-film"
-              element={<CreateFilms handleCreateFilm={handleCreateFilm} />}
+              element={
+                <CreateFilms
+                  setLoading={setLoading}
+                  setTrigger={setTrigger}
+                  setAlert={setAlert}
+                  alertInfo={alertInfo}
+                />
+              }
             />
             <Route
               path="import-films"

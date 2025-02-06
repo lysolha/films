@@ -1,14 +1,22 @@
-import { React, useEffect, useState } from "react";
+import { React, useContext, useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
+import { AuthContext } from "../context/authtorisation";
+import { useCreateFilm } from "../utilities/filmAPI";
 import FormFilmItem from "./FormFilmItem";
 
-const CreateFilmForm = ({ goHome, handleCreateFilm }) => {
+const CreateFilmForm = ({ setTrigger, goHome, setAlert, alertInfo }) => {
   let [filmItem, setFilmItem] = useState([
     { id: crypto.randomUUID(), valid: false, item: [] },
   ]);
 
+  const { token } = useContext(AuthContext);
   let [isValid, setIsValid] = useState(false);
   let showFormDelete = false;
+
+  const { status, toggle, error, fetchFunction } = useCreateFilm(
+    filmItem,
+    token,
+  );
 
   const addForm = () => {
     setFilmItem([
@@ -25,19 +33,39 @@ const CreateFilmForm = ({ goHome, handleCreateFilm }) => {
     setFilmItem(updatedList);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    filmItem.forEach((film) => {
-      handleCreateFilm(film.item);
-    });
-
-    goHome();
+    for (const film of filmItem) {
+      await fetchFunction({ body: JSON.stringify(film.item) });
+    }
   };
 
   useEffect(() => {
-    console.log(filmItem);
     setIsValid(filmItem.every((film) => film.valid));
   }, [filmItem]);
+
+  useEffect(() => {
+    if (status == 1) {
+      setAlert({
+        ...alertInfo,
+        variant: "default",
+        status: true,
+        title: "Success",
+        description: "Films were added.",
+      });
+
+      setTrigger((prev) => !prev);
+      goHome();
+    } else if (status == 0) {
+      setAlert({
+        ...alertInfo,
+        status: true,
+        variant: "destructive",
+        title: "Fail!",
+        description: `Films were NOT added. Error: ${error}`,
+      });
+    }
+  }, [toggle]);
 
   return (
     <form className="my-4 flex flex-col space-y-3.5" onSubmit={handleSubmit}>

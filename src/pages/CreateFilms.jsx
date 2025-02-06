@@ -1,10 +1,9 @@
-import React from "react";
-import CreateFilmForm from "../components/CreateFilmForm";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import CreateFilmForm from "../components/CreateFilmForm";
 
-const CreateFilms = ({ handleCreateFilm }) => {
+const CreateFilms = ({ setTrigger, setAlert, alertInfo }) => {
   const navigator = useNavigate();
   const goToImport = () => {
     navigator("/import-films");
@@ -20,8 +19,10 @@ const CreateFilms = ({ handleCreateFilm }) => {
         <Button onClick={goToImport}>Import file</Button>
       </div>
       <CreateFilmForm
+        setTrigger={setTrigger}
         goHome={goHome}
-        handleCreateFilm={handleCreateFilm}
+        setAlert={setAlert}
+        alertInfo={alertInfo}
       ></CreateFilmForm>
     </div>
   );
