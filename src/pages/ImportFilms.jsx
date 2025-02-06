@@ -1,25 +1,54 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import FileInput from "../components/FileInput";
+import { AuthContext } from "../context/authtorisation";
+import { useHandleImport } from "../utilities/filmAPI";
 
-const ImportFilms = ({ handleImport }) => {
+const ImportFilms = ({ alertInfo, setAlert, setTrigger }) => {
+  const { token } = useContext(AuthContext);
   const [file, setFile] = useState(null);
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
+  const { data, status, toggle, error, fetchFunction } = useHandleImport(
+    file,
+    token,
+  );
 
   const navigator = useNavigate();
   const upload = () => {
-    handleImport(file);
-    navigator("/");
+    fetchFunction();
   };
+
+  useEffect(() => {
+    if (status == 1) {
+      setAlert({
+        ...alertInfo,
+        variant: "default",
+        status: true,
+        title: "Success",
+        description: "Films were added.",
+      });
+
+      setTrigger((prev) => !prev);
+      navigator("/");
+    } else if (status == 0) {
+      setAlert({
+        ...alertInfo,
+        status: true,
+        variant: "destructive",
+        title: "Fail!",
+        description: `Films were NOT added. Error: ${error}`,
+      });
+    }
+  }, [toggle]);
 
   return (
     <div>
-      <Input onChange={handleFileChange} type="file" id="bulkImport" multiple />
-      <Button disabled={!file} onClick={upload}>
+      <a className="flex w-full justify-end" href="/movies.txt" download>
+        <Button>Load Example</Button>
+      </a>
+      <FileInput setFile={setFile}></FileInput>
+      <Button className="w-full" disabled={!file} onClick={upload}>
         Import
       </Button>
     </div>

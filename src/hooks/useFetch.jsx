@@ -31,7 +31,11 @@ const useFetch = (url, options) => {
       const result = await response.json();
 
       if (result.status == 0) {
-        const errorText = formatObjectToString(result.error.fields);
+        const errorText =
+          "fields: " +
+          formatObjectToString(result.error.fields) +
+          " code: " +
+          result.error.code;
         setError(errorText);
       }
 

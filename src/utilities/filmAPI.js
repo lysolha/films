@@ -21,7 +21,7 @@ const useFetchFilms = (token, trigger, setLoading) => {
     }
   }, [token, trigger]);
 
-  return { data, fetchFunction };
+  return { data };
 };
 
 export default useFetchFilms;
@@ -42,41 +42,24 @@ export const useCreateFilm = (film, token) => {
   return { status, toggle, error, fetchFunction };
 };
 
-// export async function handleImport(file) {
-//   const formData = new FormData();
-//   formData.append("movies", file);
+export const useHandleImport = (file, token) => {
+  const formData = new FormData();
+  formData.append("movies", file);
 
-//   await fetch(`${movieAPILink}/movies/import`, {
-//     method: "POST",
-//     headers: {
-//       "Access-Control-Allow-Origin": "*",
-//       Authorization: token,
-//     },
-//     body: formData,
-//   })
-//     .then((response) => {
-//       setAlert({
-//         ...alertInfo,
-//         variant: "default",
-//         status: true,
-//         title: "Success",
-//         description: "Films were added.",
-//       });
-//       return response.text();
-//     })
-//     .catch((error) => {
-//       setAlert({
-//         ...alertInfo,
-//         status: true,
-//         variant: "destructive",
-//         title: "Fail!",
-//         description: "Films were NOT added.",
-//       });
-//       throw new Error(`Error: ${error}`);
-//     });
+  const url = `${movieAPILink}/movies/import`;
+  const options = {
+    method: "POST",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      Authorization: token,
+    },
+    body: formData,
+  };
 
-//   setTrigger(!trigger);
-// }
+  const { data, status, toggle, error, fetchFunction } = useFetch(url, options);
+
+  return { data, status, toggle, error, fetchFunction };
+};
 
 // export const deleteFilm = async (filmId) => {
 //   try {

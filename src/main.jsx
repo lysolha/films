@@ -37,42 +37,6 @@ const Main = () => {
 
   const { data, fetchFunction } = useFetchFilms(token, trigger, setLoading);
 
-  async function handleImport(file) {
-    const formData = new FormData();
-    formData.append("movies", file);
-
-    await fetch(`${movieAPILink}/movies/import`, {
-      method: "POST",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        Authorization: token,
-      },
-      body: formData,
-    })
-      .then((response) => {
-        setAlert({
-          ...alertInfo,
-          variant: "default",
-          status: true,
-          title: "Success",
-          description: "Films were added.",
-        });
-        return response.text();
-      })
-      .catch((error) => {
-        setAlert({
-          ...alertInfo,
-          status: true,
-          variant: "destructive",
-          title: "Fail!",
-          description: "Films were NOT added.",
-        });
-        throw new Error(`Error: ${error}`);
-      });
-
-    setTrigger(!trigger);
-  }
-
   const deleteFilm = async (filmId) => {
     try {
       const response = await fetch(`${movieAPILink}/movies/${filmId}`, {
@@ -163,7 +127,13 @@ const Main = () => {
             />
             <Route
               path="import-films"
-              element={<ImportFilms handleImport={handleImport} />}
+              element={
+                <ImportFilms
+                  alertInfo={alertInfo}
+                  setAlert={setAlert}
+                  setTrigger={setTrigger}
+                />
+              }
             />
             <Route
               path="film/:filmId"
