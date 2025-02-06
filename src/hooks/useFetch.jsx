@@ -37,6 +37,11 @@ const useFetch = (url, options) => {
 
       setStatus(result.status);
       setData(result);
+
+      const data = await result.data;
+      if (data) {
+        setData(data);
+      }
     } catch (err) {
       setError(err);
     } finally {
