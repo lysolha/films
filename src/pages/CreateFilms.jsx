@@ -10,6 +10,7 @@ const CreateFilms = ({ setTrigger, setAlert, alertInfo }) => {
   };
 
   const goHome = () => {
+    localStorage.removeItem("filters");
     navigator("/");
   };
 

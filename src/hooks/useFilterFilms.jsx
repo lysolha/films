@@ -5,7 +5,7 @@ export const useFilters = () => {
     const savedFilters = localStorage.getItem("filters");
     return savedFilters
       ? JSON.parse(savedFilters)
-      : { sortType: "", searchValue: "" };
+      : { sortType: "", searchValue: "", order: "" };
   });
 
   useEffect(() => {
@@ -51,14 +51,15 @@ export const useSortedAndSearchedArr = (
   searchValue = "",
 ) => {
   const sortedArr = useSortFilms(films, sortType);
-  console.log("test");
 
   const sortedAndSearchedArr = useMemo(() => {
     const test = [...sortedArr].filter((element) =>
-      element.title.includes(searchValue),
+      element.title
+        .toLowerCase()
+        .includes(searchValue.toString().toLowerCase()),
     );
     return test;
-  }, [searchValue, sortedArr]);
+  }, [sortedArr]);
 
   return { sortedAndSearchedArr };
 };

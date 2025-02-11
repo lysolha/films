@@ -2,6 +2,7 @@ import { useState } from "react";
 
 const useFetch = (url, options) => {
   const [data, setData] = useState([]);
+  const [dataCount, setDataCount] = useState(0);
   const [toggle, setToggle] = useState(false);
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
@@ -10,9 +11,9 @@ const useFetch = (url, options) => {
     return Object.entries(obj)
       .map(([key, value]) => {
         if (Array.isArray(value)) {
-          return `${key}: [${value.join(", ")}]`; // Для массивов
+          return `${key}: [${value.join(", ")}]`;
         } else if (typeof value === "object" && value !== null) {
-          return `${key}: { ${formatObjectToString(value)} }`; // Для вложенных объектов
+          return `${key}: { ${formatObjectToString(value)} }`;
         }
         return `${key}: ${value}`;
       })
@@ -41,6 +42,8 @@ const useFetch = (url, options) => {
 
       setStatus(result.status);
       setData(result);
+      const dataCount = await result.meta.total;
+      setDataCount(dataCount);
 
       const data = await result.data;
       if (data) {
@@ -53,7 +56,7 @@ const useFetch = (url, options) => {
     }
   };
 
-  return { data, status, toggle, error, fetchFunction };
+  return { data, dataCount, status, toggle, error, fetchFunction };
 };
 
 export default useFetch;

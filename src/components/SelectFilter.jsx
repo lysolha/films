@@ -12,6 +12,7 @@ import React from "react";
 const SelectFilter = ({ filters, setFilters, options, defaultValue }) => {
   return (
     <div>
+      <span>Set at least 3 characters in Search field </span>
       <Input
         className="mb-3"
         value={filters.searchValue}
@@ -23,8 +24,14 @@ const SelectFilter = ({ filters, setFilters, options, defaultValue }) => {
       <Select
         value={filters.sortType}
         onValueChange={(value) => {
-          console.log("filters", filters.sortType);
-          setFilters((prev) => ({ ...prev, sortType: value }));
+          const valueArr = value.split("-");
+          const order = valueArr[1] === "Z" ? "DESC" : "ASC";
+
+          setFilters((prev) => ({
+            ...prev,
+            sortType: value,
+            order: order,
+          }));
         }}
       >
         <SelectTrigger className="w-[180px]">

@@ -2,8 +2,28 @@ import { useEffect } from "react";
 import useFetch from "../hooks/useFetch";
 import movieAPILink from "../utilities/API";
 
-const useFetchFilms = (token, trigger, setLoading) => {
-  const url = `${movieAPILink}/movies?limit=100`;
+const useFetchFilms = (
+  token,
+  trigger,
+  setLoading,
+  limit,
+  // order = "",
+  // offset = 10,
+  // sortType = "",
+  searchValue = "",
+) => {
+  const queryParams = new URLSearchParams();
+
+  if (searchValue && searchValue.length >= 3) {
+    queryParams.append("search", searchValue);
+  }
+
+  if (limit) queryParams.append("limit", limit);
+  // if (offset) queryParams.append("offset", offset);
+  // if (sortType) queryParams.append("sort", sortType);
+  // if (order) queryParams.append("order", order);
+
+  const url = `${movieAPILink}/movies?${queryParams.toString()}`;
   const options = {
     method: "GET",
     headers: {
@@ -12,7 +32,10 @@ const useFetchFilms = (token, trigger, setLoading) => {
     },
   };
 
-  const { data, status, toggle, error, fetchFunction } = useFetch(url, options);
+  const { data, dataCount, status, toggle, error, fetchFunction } = useFetch(
+    url,
+    options,
+  );
 
   useEffect(() => {
     if (token) {
@@ -21,7 +44,7 @@ const useFetchFilms = (token, trigger, setLoading) => {
     }
   }, [token, trigger]);
 
-  return { data };
+  return { data, dataCount, fetchFunction };
 };
 
 export default useFetchFilms;
