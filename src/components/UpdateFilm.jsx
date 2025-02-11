@@ -18,7 +18,6 @@ const UpdateFilm = ({ inputFilm, fetchUpdateFilm }) => {
     format: inputFilm.format,
     actors: inputFilm.actors.map((actor) => actor.name),
   });
-  console.log(filmItem.actors);
   const [select, setSelect] = useState(filmItem.format);
 
   let [isValid, setIsValid] = useState(false);
@@ -41,8 +40,6 @@ const UpdateFilm = ({ inputFilm, fetchUpdateFilm }) => {
   };
 
   const handleActors = (e, id) => {
-    console.log(e.target.value);
-
     const newFilmFunction = {
       ...filmItem,
       actors: filmItem.actors.map((actor, index) =>

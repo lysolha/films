@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Link,
   Navigate,
@@ -23,7 +23,9 @@ const Main = () => {
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sortedFilms, setSortedFilms] = useState([]);
   const [trigger, setTrigger] = useState(false);
+  const [films, setFilms] = useState([]);
   const [alertInfo, setAlert] = useState({
     status: false,
     variant: "default",
@@ -36,6 +38,11 @@ const Main = () => {
   };
 
   const { data, fetchFunction } = useFetchFilms(token, trigger, setLoading);
+
+  useEffect(() => {
+    setFilms(data);
+    setSortedFilms(data);
+  }, [data]);
 
   const deleteFilm = async (filmId) => {
     try {
@@ -78,7 +85,7 @@ const Main = () => {
 
   const handleDeleteAll = async () => {
     try {
-      await Promise.all(data.map((film) => deleteFilm(film.id)));
+      await Promise.all(films.map((film) => deleteFilm(film.id)));
       setTrigger((prev) => !prev);
       setAlert({
         ...alertInfo,
@@ -106,8 +113,11 @@ const Main = () => {
               element={
                 <App
                   token={token}
+                  setFilms={setFilms}
+                  setSortedFilms={setSortedFilms}
                   // fetchFilms={fetchFilms}
-                  films={data}
+                  films={films}
+                  sortedFilms={sortedFilms}
                   handleDeleteAll={handleDeleteAll}
                   loading={loading}
                 />

@@ -31,7 +31,6 @@ const FilmInfo = ({ token, deleteFilm }) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data.data);
         setFilm(data.data);
         return data.data;
       });
