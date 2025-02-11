@@ -23,7 +23,6 @@ const Main = () => {
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sortedFilms, setSortedFilms] = useState([]);
   const [trigger, setTrigger] = useState(false);
   const [films, setFilms] = useState([]);
   const [alertInfo, setAlert] = useState({
@@ -37,11 +36,10 @@ const Main = () => {
     setAlert({ ...alertInfo, status: false });
   };
 
-  const { data, fetchFunction } = useFetchFilms(token, trigger, setLoading);
+  const { data } = useFetchFilms(token, trigger, setLoading);
 
   useEffect(() => {
     setFilms(data);
-    setSortedFilms(data);
   }, [data]);
 
   const deleteFilm = async (filmId) => {
@@ -99,10 +97,6 @@ const Main = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchFilms();
-  // }, [token, trigger]);
-
   return (
     <div className="flex min-h-screen flex-col justify-between">
       <Router>
@@ -112,12 +106,7 @@ const Main = () => {
               index
               element={
                 <App
-                  token={token}
-                  setFilms={setFilms}
-                  setSortedFilms={setSortedFilms}
-                  // fetchFilms={fetchFilms}
                   films={films}
-                  sortedFilms={sortedFilms}
                   handleDeleteAll={handleDeleteAll}
                   loading={loading}
                 />

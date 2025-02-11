@@ -8,14 +8,7 @@ import FilmList from "./components/FilmList";
 import SelectFilter from "./components/SelectFilter";
 import { useFilters, useSortedAndSearchedArr } from "./hooks/useFilterFilms";
 
-export default function App({
-  films,
-  sortedFilms,
-  setSortedFilms,
-  setFilms,
-  handleDeleteAll,
-  loading,
-}) {
+export default function App({ films, handleDeleteAll, loading }) {
   const options = [
     { id: 1, value: "title-A", name: "title A->Z" },
     { id: 2, value: "title-Z", name: "title Z->A" },
